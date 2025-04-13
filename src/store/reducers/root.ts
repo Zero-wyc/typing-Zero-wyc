@@ -13,6 +13,8 @@ const WORDS_MODE = 'WORDS_MODE';
 const COUNTDOWN_TIME = 'COUNTDOWN_TIME';
 const CUSTOMER_WORDS = 'CUSTOMER_WORDS';
 const BACK_IMG_URL = 'BACK_IMG_URL';
+const BACK_IMG_BLUR = 'BACK_IMG_BLUR';
+const BACK_IMG_OPACITY = 'BACK_IMG_OPACITY';
 
 const _state = {
     uiScale: storage.local.get<string>(UI_SCALE) || 's',
@@ -21,6 +23,8 @@ const _state = {
     countdownTime: storage.local.get<string>(COUNTDOWN_TIME) || '60',
     customerWords: storage.local.get<Word[]>(CUSTOMER_WORDS) || [],
     backImgUrl: storage.local.get<string>(BACK_IMG_URL) || '',
+    backImgBlur: storage.local.get<number>(BACK_IMG_BLUR) || 0,
+    backImgOpacity: storage.local.get<number>(BACK_IMG_OPACITY) || 1,
 };
 type State = typeof _state;
 
@@ -48,6 +52,14 @@ const reducer = {
     setBackImgUrl: (state: State, payload: State['backImgUrl']): Partial<State> => {
         storage.local.set(BACK_IMG_URL, payload);
         return { backImgUrl: payload };
+    },
+    setBackImgBlur: (state: State, payload: State['backImgBlur']): Partial<State> => {
+        storage.local.set(BACK_IMG_BLUR, payload);
+        return { backImgBlur: payload };
+    },
+    setBackImgOpacity: (state: State, payload: State['backImgOpacity']): Partial<State> => {
+        storage.local.set(BACK_IMG_OPACITY, payload);
+        return { backImgOpacity: payload };
     },
 };
 

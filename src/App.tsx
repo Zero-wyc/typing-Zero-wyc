@@ -14,7 +14,12 @@ const App: React.FC = () => (
         <div className="app-main">
             {/* HashRouter 不需要 basename; BrowserRouter 才需要 */}
             {/* <Router basename={import.meta.env.BASE_URL}> */}
-            <Router>
+            <Router
+                future={{ 
+                    v7_relativeSplatPath: true,
+                    v7_startTransition: true 
+                }}
+            >
                 <Header />
                 <Suspense fallback={<></>}>
                     <AppRouter />

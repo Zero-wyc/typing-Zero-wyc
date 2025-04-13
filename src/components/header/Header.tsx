@@ -1,14 +1,15 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Row, Col, Button, Radio, Modal, Tabs, Input, Tooltip, Popover } from 'antd';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { Row, Col, Button, Radio, Modal, Tabs, Input, Tooltip, Popover, Slider } from 'antd';
 import {
     SettingOutlined,
     AppstoreOutlined,
     InsertRowBelowOutlined,
     SoundOutlined,
-    HeartTwoTone,
     BellOutlined,
     BarsOutlined,
     CarryOutOutlined,
+    PictureOutlined,
+    UserOutlined,
 } from '@ant-design/icons';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -18,8 +19,7 @@ import WORDS from '@/words';
 // import { getPinyin } from '@/utils/pinyin';
 
 import themeList, { changeTheme } from '@/themes';
-
-import DonatePop from '../donatePop/DonatePop';
+import storage from '@/utils/storage';
 
 const reg = /^[\u2E80-\u9FFF]+$/;
 const defaultWordStr = WORDS.map((item) => item.label).join('|');
@@ -36,6 +36,12 @@ const ROUTE_HEADER_CONFIG: Record<string, (1 | 0)[]> = {
 const Header: React.FC<MapState & MapDispatch> = (props) => {
     const [settingModalVisible, setSettingModalVisible] = useState(false);
     const [themeModalVisible, setThemeModalVisible] = useState(false);
+    const [bgModalVisible, setBgModalVisible] = useState(false);
+    const [aboutModalVisible, setAboutModalVisible] = useState(false);
+    const [bgImageUrl, setBgImageUrl] = useState('');
+    const [previewUrl, setPreviewUrl] = useState('');
+    const [blurValue, setBlurValue] = useState(0);
+    const [opacityValue, setOpacityValue] = useState(100);
     const [wordsMode, setWordsMode] = useState(props.$state.root.wordsMode);
     const defaultWordsRef = useRef(defaultWordStr);
     const [words, setWords] = useState(
@@ -47,6 +53,58 @@ const Header: React.FC<MapState & MapDispatch> = (props) => {
 
     const { search, pathname } = useLocation();
     const navigate = useNavigate();
+
+    // 使用useRef存储最新的值，避免在useEffect中直接引用state导致无限循环
+    const blurValueRef = useRef(blurValue);
+    const opacityValueRef = useRef(opacityValue);
+    
+    // 更新ref值
+    useEffect(() => {
+        blurValueRef.current = blurValue;
+    }, [blurValue]);
+    
+    useEffect(() => {
+        opacityValueRef.current = opacityValue;
+    }, [opacityValue]);
+    
+    // 防抖定时器
+    const timerRef = useRef<NodeJS.Timeout | null>(null);
+    
+    // 防抖处理背景设置的改变
+    const handleBgSettingChange = useCallback(() => {
+        if (timerRef.current) {
+            clearTimeout(timerRef.current);
+        }
+        
+        timerRef.current = setTimeout(() => {
+            if (bgModalVisible && bgImageUrl.trim()) {
+                props.$dispatch('setBackImgBlur', blurValueRef.current);
+                props.$dispatch('setBackImgOpacity', opacityValueRef.current / 100);
+            }
+        }, 100);
+    }, [bgModalVisible, bgImageUrl, props]);
+    
+    // 处理模糊度变化
+    const handleBlurChange = (value: number) => {
+        setBlurValue(value);
+        handleBgSettingChange();
+        
+        // 实时预览效果应用到当前背景
+        if (previewUrl) {
+            props.$dispatch('setBackImgBlur', value);
+        }
+    };
+    
+    // 处理透明度变化
+    const handleOpacityChange = (value: number) => {
+        setOpacityValue(value);
+        handleBgSettingChange();
+        
+        // 实时预览效果应用到当前背景
+        if (previewUrl) {
+            props.$dispatch('setBackImgOpacity', value / 100);
+        }
+    };
 
     const onUiSizeChange = (evt: any) => {
         props.$dispatch('setUiScale', evt.target.value);
@@ -87,15 +145,69 @@ const Header: React.FC<MapState & MapDispatch> = (props) => {
         setWords(evt.target.value);
     };
     const themeBlockClick = (theme: any) => {
+        // 确保在链接包含查询参数的情况下，正确处理URL
         const href = window.location.href;
         if (href.includes('#') && href.includes('?')) {
             window.location.href = href.split('?')[0];
         }
+        
+        // 保存主题到Redux状态
         props.$dispatch('setUiTheme', theme.name);
+        
+        // 关闭主题模态框
+        setThemeModalVisible(false);
+        
+        // 直接调用changeTheme函数以确保主题立即应用
+        const themeObj = themeList.find((th) => th.name === theme.name);
+        if (themeObj) {
+            changeTheme(themeObj);
+        }
     };
 
     const go = (route: string) => {
         navigate(route);
+    };
+
+    const handleBgModalOk = () => {
+        if (bgImageUrl.trim()) {
+            // 同时设置背景URL、模糊度和透明度
+            props.$dispatch('setBackImgUrl', bgImageUrl);
+            props.$dispatch('setBackImgBlur', blurValue);
+            props.$dispatch('setBackImgOpacity', opacityValue / 100);
+            
+            setBgModalVisible(false);
+            setPreviewUrl('');
+        }
+    };
+
+    const clearBgImage = () => {
+        // 从Redux状态中清除
+        props.$dispatch('setBackImgUrl', '');
+        props.$dispatch('setBackImgBlur', 0);
+        props.$dispatch('setBackImgOpacity', 1);
+        
+        // 从localStorage中彻底删除
+        storage.local.remove('BACK_IMG_URL');
+        storage.local.remove('BACK_IMG_BLUR');
+        storage.local.remove('BACK_IMG_OPACITY');
+        
+        // 更新组件状态
+        setBgModalVisible(false);
+        setBgImageUrl('');
+        setPreviewUrl('');
+        setBlurValue(0);
+        setOpacityValue(100);
+    };
+
+    const openBgModal = () => {
+        if (props.$state.root.backImgUrl) {
+            setBgImageUrl(props.$state.root.backImgUrl);
+        } else {
+            setBgImageUrl('');
+        }
+        setBlurValue(props.$state.root.backImgBlur || 0);
+        setOpacityValue((props.$state.root.backImgOpacity || 1) * 100);
+        setBgModalVisible(true);
     };
 
     useEffect(() => {
@@ -111,6 +223,21 @@ const Header: React.FC<MapState & MapDispatch> = (props) => {
             }
         }
     }, [search, props.$state.root.uiTheme]);
+
+    // 实时预览背景
+    useEffect(() => {
+        if (bgModalVisible && bgImageUrl.trim()) {
+            setPreviewUrl(bgImageUrl);
+        }
+    }, [bgModalVisible, bgImageUrl]);
+    
+    // 移除导致无限循环的useEffect
+    // useEffect(() => {
+    //     if (bgModalVisible && bgImageUrl.trim() && previewUrl) {
+    //         props.$dispatch('setBackImgBlur', blurValue);
+    //         props.$dispatch('setBackImgOpacity', opacityValue / 100);
+    //     }
+    // }, [blurValue, opacityValue, bgModalVisible, bgImageUrl, previewUrl, props]);
 
     return (
         <div className="app-header">
@@ -156,30 +283,34 @@ const Header: React.FC<MapState & MapDispatch> = (props) => {
                     >
                         按键声音反馈
                     </Button>
-                    <Popover placement="bottomLeft" content={<DonatePop go={go} />}>
-                        <Button
-                            tabIndex={-1}
-                            className="heartBeat"
-                            type="link"
-                            icon={<HeartTwoTone twoToneColor="#9D0500" />} // AKIRA red
-                            onClick={() => go('about')}
-                        >
-                            求打赏
-                        </Button>
-                    </Popover>
-                </Col>
-            </Row>
-            <Row style={{ marginTop: '10px' }}>
-                <Col flex="auto">
                     <Button
                         tabIndex={-1}
                         type="link"
-                        style={{ display: ROUTE_HEADER_CONFIG[pathname]?.[0] ? '' : 'none' }}
                         icon={<AppstoreOutlined />}
                         onClick={() => setThemeModalVisible(true)}
                     >
                         主题
                     </Button>
+                    <Button
+                        tabIndex={-1}
+                        type="link"
+                        icon={<PictureOutlined />}
+                        onClick={openBgModal}
+                    >
+                        背景自定义
+                    </Button>
+                    <Button
+                        tabIndex={-1}
+                        type="link"
+                        icon={<UserOutlined />}
+                        onClick={() => setAboutModalVisible(true)}
+                    >
+                        关于我
+                    </Button>
+                </Col>
+            </Row>
+            <Row style={{ marginTop: '10px' }}>
+                <Col flex="auto">
                     <Button
                         tabIndex={-1}
                         type="link"
@@ -217,7 +348,7 @@ const Header: React.FC<MapState & MapDispatch> = (props) => {
             <Modal
                 className="header-modal-setting"
                 title=""
-                visible={settingModalVisible}
+                open={settingModalVisible}
                 closable={false}
                 maskClosable={false}
                 footer={
@@ -269,7 +400,7 @@ const Header: React.FC<MapState & MapDispatch> = (props) => {
             <Modal
                 className="header-modal-theme"
                 title=""
-                visible={themeModalVisible}
+                open={themeModalVisible}
                 footer=""
                 onCancel={() => setThemeModalVisible(false)}
             >
@@ -293,6 +424,107 @@ const Header: React.FC<MapState & MapDispatch> = (props) => {
                     <Col flex="100px"></Col>
                     <Col flex="100px"></Col>
                 </Row>
+            </Modal>
+            <Modal
+                className="header-modal-bg"
+                title="自定义背景图片"
+                open={bgModalVisible}
+                onOk={handleBgModalOk}
+                onCancel={() => {
+                    // 恢复原始设置
+                    setBlurValue(props.$state.root.backImgBlur || 0);
+                    setOpacityValue((props.$state.root.backImgOpacity || 1) * 100);
+                    setBgModalVisible(false);
+                    setPreviewUrl('');
+                }}
+                footer={[
+                    <Button key="clear" onClick={clearBgImage}>
+                        清除背景
+                    </Button>,
+                    <Button key="cancel" onClick={() => {
+                        // 恢复原始设置
+                        setBlurValue(props.$state.root.backImgBlur || 0);
+                        setOpacityValue((props.$state.root.backImgOpacity || 1) * 100);
+                        setBgModalVisible(false);
+                        setPreviewUrl('');
+                    }}>
+                        取消
+                    </Button>,
+                    <Button 
+                        key="submit" 
+                        type="primary" 
+                        onClick={handleBgModalOk}
+                        disabled={!bgImageUrl.trim()}
+                    >
+                        确定
+                    </Button>,
+                ]}
+            >
+                <p>请输入图片URL链接：</p>
+                <Input 
+                    placeholder="https://example.com/image.jpg" 
+                    value={bgImageUrl} 
+                    onChange={(e) => {
+                        setBgImageUrl(e.target.value);
+                    }}
+                />
+                <p style={{ marginTop: '10px', fontSize: '12px', color: '#999' }}>
+                    可以输入任意图片链接，图片将作为网站背景
+                </p>
+                
+                <div style={{ marginTop: '20px' }}>
+                    <p>模糊度调整：</p>
+                    <Slider 
+                        min={0} 
+                        max={20} 
+                        value={blurValue} 
+                        onChange={handleBlurChange} 
+                        tipFormatter={(value) => `${value}px`} 
+                    />
+                </div>
+                
+                <div style={{ marginTop: '20px' }}>
+                    <p>透明度调整：</p>
+                    <Slider 
+                        min={10} 
+                        max={100} 
+                        value={opacityValue} 
+                        onChange={handleOpacityChange} 
+                        tipFormatter={(value) => `${value}%`} 
+                    />
+                </div>
+                
+                {previewUrl && (
+                    <div style={{ marginTop: '15px' }}>
+                        <p>图片预览：</p>
+                        <div style={{ maxHeight: '200px', overflow: 'hidden' }}>
+                            <img 
+                                src={previewUrl} 
+                                alt="背景预览" 
+                                style={{ 
+                                    width: '100%', 
+                                    objectFit: 'cover', 
+                                    border: '1px solid #ddd',
+                                    filter: `blur(${blurValue}px)`,
+                                    opacity: opacityValue / 100
+                                }} 
+                            />
+                        </div>
+                    </div>
+                )}
+            </Modal>
+            <Modal
+                className="header-modal-about"
+                title="关于我"
+                open={aboutModalVisible}
+                footer={null}
+                onCancel={() => setAboutModalVisible(false)}
+            >
+                <div className="about-content">
+                    <p>来自一个FW的fork并进行一些修改</p>
+                    <p>改自 <a href="https://github.com/barneyzhao/typing-cn" target="_blank" rel="noopener noreferrer">Barneyzhao</a></p>
+                    <p>有兴趣来<a href="https://Zero251.xyz" target="_blank" rel="noopener noreferrer">个人主页</a>看看嘛QAQ</p>
+                </div>
             </Modal>
             {/* <div>router examples.(with code split lazy load, check js files in network)</div>
             <ul>

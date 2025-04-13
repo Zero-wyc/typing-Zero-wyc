@@ -378,7 +378,6 @@ const Monkey: React.FC<MapState & MapDispatch> = (props) => {
                         <div>
                             输入状态下<code>Tab</code>后回车可以直接刷新
                         </div>
-                        <div>觉得有意思可以打赏一下(#^.^#)(在上面↑↑)</div>
                     </div>
                 </Col>
                 <Col flex="900px" className={`type-result-box ${showTypeResult ? 'show' : ''}`}>

@@ -81,7 +81,7 @@ const Fingers: React.FC<MapState & MapDispatch> = (props) => {
         });
         return isCorrect;
     };
-    const inputCountdownTime = (value?: number | string) => {
+    const inputCountdownTime = (value: number | null) => {
         if (value && /^\d+$/g.test(String(value))) {
             countdownTimeRef.current = Number(value);
             setDeadlineText(getCountdownStr(Number(value)));
@@ -282,7 +282,7 @@ const Fingers: React.FC<MapState & MapDispatch> = (props) => {
                                         <span>秒</span>
                                     </div>
                                 }
-                                onVisibleChange={() =>
+                                onOpenChange={() =>
                                     props.$dispatch(
                                         'setCountdownTime',
                                         String(countdownTimeRef.current)

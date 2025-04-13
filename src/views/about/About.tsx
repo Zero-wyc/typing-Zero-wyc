@@ -10,7 +10,6 @@ import { Row, Col, Button } from 'antd';
 import './About.less';
 
 import { storeConnect, MapState as S, MapDispatch as D } from '@/store';
-import PayQrCode from '@/components/payQrCode/PayQrCode';
 import avatar from '@/assets/avatar.jpg';
 
 const About: React.FC<S & D> = (props) => {
@@ -60,20 +59,8 @@ const About: React.FC<S & D> = (props) => {
                         <span>分享的帖子在这儿：</span>
                         <a href="https://www.zfrontier.com/app/flow/4K1P89Yb8LPl">zfrontier</a>
                     </p>
-                    <p>(#^.^#)喜欢的各位可以打赏支持一下呀~~~</p>
-                    <p>
-                        <span>打赏可以留言告诉我一套你喜欢的键帽配色，我会添加到主题中</span>
-                    </p>
-                    <p>
-                        <span>如果打赏支持的朋友多，</span>
-                        <span>我也会花更多精力来更新这个玩具的ヾ(◍°∇°◍)ﾉﾞ</span>
-                    </p>
-                    <p>(左边微信 - 右边支付宝)</p>
-                    <div style={{ paddingLeft: 35 }}>
-                        <PayQrCode />
-                    </div>
                     <p></p>
-                    <p>最后感谢各位喜欢这个玩具~</p>
+                    <p>感谢各位喜欢这个玩具~</p>
                     <p>
                         <Button
                             type="primary"

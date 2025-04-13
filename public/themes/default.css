@@ -17,6 +17,7 @@
     /* // @box-shadow-base: 0 2px 8px rgba(0, 0, 0, 0.15); // 浮层阴影 */
 
     --bg-color: #282c34;
+    --body-back-image: url('../images/甘城2_1.png');
     --head-text-color: #fffffe;
 
     --home-window-bg-color: #fffffd;
@@ -37,4 +38,12 @@
     --monkey-caret-color: #1890ff;
     --monkey-sub-color: inherit;
     --monkey-error-color: red;
+}
+
+/* 添加背景图片 */
+body {
+    background-position: center center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
 }
