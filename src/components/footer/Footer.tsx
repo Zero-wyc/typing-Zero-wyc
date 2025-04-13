@@ -29,26 +29,30 @@ const Footer: React.FC<S & D> = (props) => {
             // 当有自定义背景时，移除默认背景图片
             document.body.style.backgroundImage = 'none';
         } else {
+            // 获取CSS变量定义的默认背景图片
+            const style = getComputedStyle(document.documentElement);
+            const defaultBgImage = style.getPropertyValue('--body-back-image');
             // 当没有自定义背景时，恢复默认背景图片
-            document.body.style.backgroundImage = 'var(--body-back-image)';
+            document.body.style.backgroundImage = defaultBgImage || 'var(--body-back-image)';
         }
-        
         return () => {
             // 组件卸载时恢复默认背景
-            document.body.style.backgroundImage = 'var(--body-back-image)';
+            const style = getComputedStyle(document.documentElement);
+            const defaultBgImage = style.getPropertyValue('--body-back-image');
+            document.body.style.backgroundImage = defaultBgImage || 'var(--body-back-image)';
         };
     }, [props.$state.root.backImgUrl]);
 
     return (
         <div className="app-footer">
             {props.$state.root.backImgUrl && (
-                <img 
-                    className="back__img" 
-                    src={getImageUrl(props.$state.root.backImgUrl)} 
-                    alt="" 
+                <img
+                    className="back__img"
+                    src={getImageUrl(props.$state.root.backImgUrl)}
+                    alt=""
                     style={{
                         filter: `blur(${props.$state.root.backImgBlur}px)`,
-                        opacity: props.$state.root.backImgOpacity
+                        opacity: props.$state.root.backImgOpacity,
                     }}
                 />
             )}
