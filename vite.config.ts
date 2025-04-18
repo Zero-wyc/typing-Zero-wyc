@@ -7,7 +7,7 @@ import pkg from './package.json';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-    base: mode === 'production' ? '/typing-cn/' : '/',
+    base: mode === 'nobase' ? '/' : (mode === 'production' ? '/typing-cn/' : '/'),
     define: { __APP_VERSION__: JSON.stringify(pkg.version) },
     plugins: [
         react(),

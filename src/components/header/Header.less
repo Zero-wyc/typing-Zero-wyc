@@ -34,11 +34,11 @@
 }
 .header-modal-setting {
     .ant-modal-content {
-        background-color: var(--home-window-bg-color);
+        background-color: #152128;
         .ant-tabs-nav {
-            color: var(--home-window-text-color);
+            color: #e0e0e0;
             .ant-tabs-tab:hover {
-                color: var(--home-window-text-color);
+                color: #e0e0e0;
                 filter: brightness(1.5);
             }
             .ant-tabs-tab-active {
@@ -49,7 +49,31 @@
             background-color: var(--primary-color);
         }
         .header-modal--total {
-            color: var(--home-window-text-color);
+            color: #e0e0e0;
+        }
+        
+        .ant-input-disabled {
+            background-color: #1a2930;
+            color: #8796A5;
+        }
+        
+        .ant-input {
+            background-color: #263238;
+            border-color: #263238;
+            color: #e0e0e0;
+            
+            &:focus {
+                border-color: #61AFEF;
+                box-shadow: 0 0 0 2px rgba(97, 175, 239, 0.2);
+            }
+        }
+        
+        .ant-modal-close {
+            color: #e0e0e0;
+            
+            &:hover {
+                color: #E5C07B;
+            }
         }
     }
 }

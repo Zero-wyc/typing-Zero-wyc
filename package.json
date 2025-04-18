@@ -9,12 +9,13 @@
     },
     "scripts": {
         "dev": "vite",
-        "build": "tsc && vite build",
-        "build-nobase": "tsc && vite build --mode nobase",
-        "preview": "vite preview",
+        "build": "tsc && vite build --mode nobase",
+        "build-base": "tsc && vite build",
+        "preview": "vite preview --base=/",
+        "preview-base": "vite preview",
         "update-version": "node scripts/updateVersion.js",
-        "online": "npm run build && node scripts/deploy.js master docs/",
-        "online2": "npm run build-nobase && node scripts/deploy.js master docs-nobase/",
+        "online": "npm run build && node scripts/deploy.js master docs-nobase/",
+        "online-base": "npm run build-base && node scripts/deploy.js master docs/",
         "lint": "eslint --ext .jsx,.js,.tsx,.ts src",
         "prettier": "prettier --write 'src/**/*.{js,jsx,ts,tsx,scss}'",
         "word": "node scripts/generateWords.js"

@@ -12,19 +12,28 @@ import list from './config';
 
 export default list;
 
+// 通过主题名称获取主题对象
+export const getThemeByName = (themeName: string) => {
+    return list.find(theme => theme.name === themeName);
+};
+
 export const changeTheme = (theme: typeof list[0]) => {
-    // 切换主题时清除背景图片设置
-    if (theme.name !== 'default') {
-        // 清除背景图片相关的localStorage
-        storage.local.remove('BACK_IMG_URL');
-        storage.local.remove('BACK_IMG_BLUR');
-        storage.local.remove('BACK_IMG_OPACITY');
-        
-        // 清除Redux状态中的背景图片设置
-        store.dispatch({ type: 'setBackImgUrl', payload: '' });
-        store.dispatch({ type: 'setBackImgBlur', payload: 0 });
-        store.dispatch({ type: 'setBackImgOpacity', payload: 1 });
+    // 清除背景图片相关的localStorage
+    storage.local.remove('BACK_IMG_URL');
+    storage.local.remove('BACK_IMG_BLUR');
+    storage.local.remove('BACK_IMG_OPACITY');
+    
+    // 清除Redux状态中的背景图片设置
+    store.dispatch({ type: 'setBackImgUrl', payload: '' });
+    store.dispatch({ type: 'setBackImgBlur', payload: 0 });
+    store.dispatch({ type: 'setBackImgOpacity', payload: 1 });
+    
+    // 只有在主题被点击时才设置纯色背景
+    if (storage.local.get('THEME_CLICKED') === true) {
+        document.body.style.backgroundImage = 'none';
+        document.body.style.backgroundColor = theme.bgColor;
     }
+    // 否则保持甘城2_1背景图
 
     site.setSiteIcon(theme.bgColor, theme.textColor);
     

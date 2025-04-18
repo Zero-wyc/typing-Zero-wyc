@@ -151,6 +151,9 @@ const Header: React.FC<MapState & MapDispatch> = (props) => {
             window.location.href = href.split('?')[0];
         }
         
+        // 设置一个标记表示主题已被点击过
+        storage.local.set('THEME_CLICKED', true);
+        
         // 保存主题到Redux状态
         props.$dispatch('setUiTheme', theme.name);
         
@@ -214,11 +217,18 @@ const Header: React.FC<MapState & MapDispatch> = (props) => {
         if (search) {
             const themeObj = themeList.find((th) => th.name === search.slice(1).replace('-', ' '));
             if (themeObj) {
+                // 从URL参数加载主题时也设置已点击标记
+                storage.local.set('THEME_CLICKED', true);
                 changeTheme(themeObj);
             }
         } else if (props.$state.root.uiTheme) {
             const themeObj = themeList.find((th) => th.name === props.$state.root.uiTheme);
             if (themeObj) {
+                // 如果是从localStorage加载的主题，则可能已经点击过
+                // 检查是否需要设置点击标记（如果是首次加载且是默认主题则不设置）
+                if (props.$state.root.uiTheme !== 'default' || storage.local.get('THEME_CLICKED')) {
+                    storage.local.set('THEME_CLICKED', true);
+                }
                 changeTheme(themeObj);
             }
         }
