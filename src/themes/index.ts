@@ -49,7 +49,7 @@ export const changeTheme = (theme: typeof list[0]) => {
                 document.body.style.backgroundImage = 'none';
                 document.body.style.backgroundColor = theme.bgColor;
             } else {
-                // 从未点击过default主题，使用甘城2_1背景图
+                // 从未点击过default主题，使用background背景图
                 const style = getComputedStyle(document.documentElement);
                 const defaultBgImage = style.getPropertyValue('--body-back-image');
                 document.body.style.backgroundImage = defaultBgImage || 'var(--body-back-image)';

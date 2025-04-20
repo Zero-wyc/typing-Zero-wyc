@@ -49,7 +49,7 @@ const Footer: React.FC<S & D> = (props) => {
             const defaultBgImage = style.getPropertyValue('--body-back-image');
             // 检查是否为页面初始加载
             if (!document.body.getAttribute('data-theme-initialized')) {
-                // 页面初始加载，使用甘城2_1背景图
+                // 页面初始加载，使用background背景图
                 document.body.style.backgroundImage = defaultBgImage || 'var(--body-back-image)';
                 document.body.style.backgroundColor = ''; // 重置背景颜色，让CSS变量控制
                 document.body.style.backgroundPosition = 'center center'; // 默认居中

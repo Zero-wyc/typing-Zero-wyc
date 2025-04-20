@@ -7,8 +7,12 @@ import App from './App';
 import './index.less';
 import storage from './utils/storage';
 import { getThemeByName } from './themes';
+import { setupCustomCursors } from './utils/cursor';
 
 console.log('APP_VERSION:', __APP_VERSION__);
+
+// 设置自定义光标
+setupCustomCursors();
 
 // 确保默认背景图片在打包后正确加载
 function ensureDefaultBackground() {
@@ -34,7 +38,7 @@ function ensureDefaultBackground() {
           body.style.backgroundColor = currentTheme.bgColor;
         }
       } else {
-        // 默认主题且从未点击过，确保设置甘城2_1背景图
+        // 默认主题且从未点击过，确保设置background背景图
         // 清除任何已设置的背景颜色
         body.style.backgroundColor = '';
         
@@ -42,7 +46,7 @@ function ensureDefaultBackground() {
           // 尝试直接设置默认背景图片
           const base = import.meta.env.BASE_URL || '/';
           // 修改路径引用方式，确保在base不同的情况下都能正确加载
-          const imgPath = new URL(`${base}images/甘城2_1.png`, window.location.origin).pathname;
+          const imgPath = new URL(`${base}images/background.png`, window.location.origin).pathname;
           body.style.backgroundImage = `url("${imgPath}")`;
         }
       }
