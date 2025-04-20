@@ -296,10 +296,12 @@ const Header: React.FC<MapState & MapDispatch> = (props) => {
         // 清除default主题点击标记
         storage.local.remove('DEFAULT_THEME_CLICKED');
         
-        // 获取CSS变量定义的默认背景图片并应用
-        const style = getComputedStyle(document.documentElement);
-        const defaultBgImage = style.getPropertyValue('--body-back-image');
-        document.body.style.backgroundImage = defaultBgImage || 'var(--body-back-image)';
+        // 获取base路径
+        const base = import.meta.env.BASE_URL || '/';
+        
+        // 直接使用构建的图片路径，而不依赖CSS变量
+        const imgPath = new URL(`${base}images/background.png`, window.location.origin).pathname;
+        document.body.style.backgroundImage = `url("${imgPath}")`;
         document.body.style.backgroundColor = ''; // 重置背景颜色，让CSS变量控制
         document.body.style.backgroundPosition = 'center center'; // 重置背景位置
         document.body.style.backgroundSize = 'cover'; // 重置背景尺寸
